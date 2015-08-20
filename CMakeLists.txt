@@ -14,7 +14,7 @@ set(CMAKE_AUTOMOC ON)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES csapex_python_core
+  LIBRARIES csapex_python
   CATKIN_DEPENDS csapex
 )
 
@@ -26,22 +26,32 @@ include_directories(
   ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}
 )
 
-add_library(csapex_python_core
+add_library(csapex_python
     src/python_apex_api.cpp
 )
-target_link_libraries(csapex_python_core
+target_link_libraries(csapex_python
     ${catkin_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
 )
 
-add_library(csapex_python
+add_library(csapex_python_node
     src/python_node.cpp
+)
+
+target_link_libraries(csapex_python_node
+    csapex_python
+    ${catkin_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${PYTHON_LIBRARIES}
+)
+
+add_library(csapex_python_qt
     src/python_node_adapter.cpp
 )
 
-target_link_libraries(csapex_python
-    csapex_python_core
+target_link_libraries(csapex_python_qt
+    csapex_python
     ${catkin_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
@@ -54,12 +64,16 @@ target_link_libraries(csapex_python
 install(FILES plugins.xml
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(TARGETS csapex_python
+install(TARGETS csapex_python_node
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+install(TARGETS csapex_python_qt
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 
-install(TARGETS csapex_python_core
+install(TARGETS csapex_python
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
