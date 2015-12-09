@@ -14,7 +14,7 @@ using namespace csapex;
 
 CSAPEX_REGISTER_NODE_ADAPTER(PythonNodeAdapter, csapex::PythonNode)
 
-PythonNodeAdapter::PythonNodeAdapter(NodeWorkerWeakPtr worker, std::weak_ptr<PythonNode> node, WidgetController* widget_ctrl)
+PythonNodeAdapter::PythonNodeAdapter(NodeHandleWeakPtr worker, std::weak_ptr<PythonNode> node, WidgetController* widget_ctrl)
     : DefaultNodeAdapter(worker, widget_ctrl), wrapped_(node)
 {
 }

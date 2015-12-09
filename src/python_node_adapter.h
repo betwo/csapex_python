@@ -61,7 +61,7 @@ class PythonNodeAdapter : public QObject, public DefaultNodeAdapter
     Q_OBJECT
 
 public:
-    PythonNodeAdapter(NodeWorkerWeakPtr worker, std::weak_ptr<PythonNode> node, WidgetController *widget_ctrl);
+    PythonNodeAdapter(NodeHandleWeakPtr worker, std::weak_ptr<PythonNode> node, WidgetController *widget_ctrl);
 
     virtual void setupUi(QBoxLayout* layout);
 
