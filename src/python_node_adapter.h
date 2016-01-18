@@ -47,7 +47,7 @@ private:
 
     void initializeRules();
 
-    //! Highlighst multi-line strings, returns true if after processing we are still within the multi-line section.
+    //! Highlights multi-line strings, returns true if after processing we are still within the multi-line section.
     bool matchMultiline(const QString &text, const QRegExp &delimiter, const int inState, const QTextCharFormat &style);
     const QTextCharFormat getTextCharFormat(const QString &colorName, const QString &style = QString());
 
@@ -61,7 +61,7 @@ class PythonNodeAdapter : public QObject, public DefaultNodeAdapter
     Q_OBJECT
 
 public:
-    PythonNodeAdapter(NodeHandleWeakPtr worker, std::weak_ptr<PythonNode> node, WidgetController *widget_ctrl);
+    PythonNodeAdapter(NodeHandleWeakPtr worker, NodeBox* parent, std::weak_ptr<PythonNode> node);
 
     virtual void setupUi(QBoxLayout* layout);
 
