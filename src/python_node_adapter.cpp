@@ -9,6 +9,8 @@
 /// SYSTEM
 #include <QPushButton>
 #include <QBoxLayout>
+#include <QEvent>
+#include <QResizeEvent>
 
 using namespace csapex;
 
@@ -38,6 +40,47 @@ void PythonNodeAdapter::setupUi(QBoxLayout* layout)
     layout->addWidget(submit);
 
     QObject::connect(submit, SIGNAL(clicked()), this, SLOT(compile()));
+
+    editor->installEventFilter(this);
+}
+
+bool PythonNodeAdapter::eventFilter(QObject* o, QEvent* e)
+{
+    if(o == editor && e->type() == QEvent::Resize) {
+        state.width = editor->width();
+        state.height = editor->height();
+    }
+    return false;
+}
+
+Memento::Ptr PythonNodeAdapter::getState() const
+{
+    return std::shared_ptr<State>(new State(state));
+}
+
+void PythonNodeAdapter::setParameterState(Memento::Ptr memento)
+{
+    std::shared_ptr<State> m = std::dynamic_pointer_cast<State> (memento);
+    apex_assert(m.get());
+
+    state = *m;
+
+    editor->setMinimumSize(state.width, state.height);
+}
+
+
+bool PythonNodeAdapter::isResizable() const
+{
+    return true;
+}
+
+void PythonNodeAdapter::setManualResize(bool manual)
+{
+    if(manual) {
+        editor->setMinimumSize(QSize(10, 10));
+    } else {
+        editor->setMinimumSize(editor->size());
+    }
 }
 
 void PythonNodeAdapter::compile()

@@ -11,6 +11,7 @@
 #include <QGraphicsView>
 #include <QTextEdit>
 #include <QSyntaxHighlighter>
+#include <yaml-cpp/yaml.h>
 
 namespace csapex {
 
@@ -65,11 +66,40 @@ public:
 
     virtual void setupUi(QBoxLayout* layout);
 
+    virtual Memento::Ptr getState() const override;
+    virtual void setParameterState(Memento::Ptr memento) override;
+
+    virtual bool isResizable() const override;
+    virtual void setManualResize(bool manual);
+
+    virtual bool eventFilter(QObject *, QEvent *) override;
+
 private Q_SLOTS:
     void compile();
 
 private:
+
+    struct State : public Memento {
+        int width;
+        int height;
+
+        State()
+            : width(100), height(100)
+        {}
+
+        virtual void writeYaml(YAML::Node& out) const {
+            out["width"] = width;
+            out["height"] = height;
+        }
+        virtual void readYaml(const YAML::Node& node) {
+            width = node["width"].as<int>();
+            height = node["height"].as<int>();
+        }
+    };
+
+private:
     std::weak_ptr<PythonNode> wrapped_;
+    State state;
 
     QTextEdit* editor;
     PythonSyntaxHighlighter* highlighter;

@@ -7,8 +7,6 @@
 /// SYSTEM
 #include <boost/python.hpp>
 
-using namespace boost::python;
-
 namespace csapex
 {
 
@@ -25,14 +23,21 @@ public:
     virtual bool canTick() override;
     virtual void tick() override;
     virtual void process() override;
+    virtual void processMarker(const connection_types::MessageConstPtr &marker);
+
+private:
+    void flush();
+    bool exists(const std::string& method);
+    void call(const std::string& method);
 
 private:
     std::string code_;
-    bool init_;
+    bool is_setup_;
+    bool python_is_initialized_;
 
     PyThreadState* thread_state;
-    object globals;
-    dict locals;
+    boost::python::object globals;
+    boost::python::dict locals;
 };
 
 }
