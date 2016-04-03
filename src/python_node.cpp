@@ -25,6 +25,11 @@ PythonNode::PythonNode()
                            "  print(inputs)\n"
                            "  print(outputs)\n"
                            "  input = inputs[0]\n"
+                           "def process(): \n"
+                           "  print(inputs)\n"
+                           "  print(outputs)\n"
+                           "  a = csapex.getString(inputs[0])\n"
+                           "  csapex.publishString(outputs[0], a)\n"
             ;
     setCode(def_code);
 }
@@ -36,6 +41,11 @@ PythonNode::~PythonNode()
     Py_EndInterpreter(thread_state);
 
     PyEval_ReleaseLock();
+}
+
+void PythonNode::portCountChanged()
+{
+    refreshCode();
 }
 
 std::string PythonNode::getCode() const
@@ -78,13 +88,17 @@ void PythonNode::setCode(const std::string &code)
         try {
             bp::list inputs;
             for(InputPtr& i : node_handle_->getAllInputs()) {
-                inputs.append(i);
+                if(!node_handle_->isParameterInput(i.get())) {
+                    inputs.append(i);
+                }
             }
             globals["inputs"] = inputs;
 
             bp::list outputs;
             for(OutputPtr& o : node_handle_->getAllOutputs()) {
-                outputs.append(o);
+                if(!node_handle_->isParameterOutput(o.get())) {
+                    outputs.append(o);
+                }
             }
             globals["outputs"] = outputs;
 
@@ -104,20 +118,27 @@ void PythonNode::setCode(const std::string &code)
     PyEval_ReleaseThread(thread_state);
 }
 
+void PythonNode::refreshCode()
+{
+    setCode(getCode());
+}
+
 void PythonNode::setup(NodeModifier& node_modifier)
 {
-    for(std::size_t i = 0; i < 4; ++i) {
-        node_modifier.addOptionalInput<csapex::connection_types::AnyMessage>("input");
-        node_modifier.addOutput<csapex::connection_types::AnyMessage>("output");
-    }
+    setupVariadic(node_modifier);
 
     if(exists("setup")) {
         call("setup");
     }
 
-    setCode(getCode());
+    refreshCode();
 
     setTickEnabled(false);
+}
+
+void PythonNode::setupParameters(Parameterizable &parameters)
+{
+    setupVariadicParameters(parameters);
 }
 
 bool PythonNode::canTick()

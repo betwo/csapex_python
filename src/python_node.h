@@ -3,6 +3,7 @@
 
 /// PROJECT
 #include <csapex/model/tickable_node.h>
+#include <csapex/model/variadic_io.h>
 
 /// SYSTEM
 #include <boost/python.hpp>
@@ -10,7 +11,7 @@
 namespace csapex
 {
 
-class PythonNode : public TickableNode
+class PythonNode : public TickableNode, public VariadicIO
 {
 public:
     PythonNode();
@@ -20,12 +21,18 @@ public:
     void setCode(const std::string& code);
 
     virtual void setup(csapex::NodeModifier& node_modifier) override;
+    virtual void setupParameters(Parameterizable &parameters) override;
     virtual bool canTick() override;
     virtual void tick() override;
     virtual void process() override;
-    virtual void processMarker(const connection_types::MessageConstPtr &marker);
+    virtual void processMarker(const connection_types::MessageConstPtr &marker) override;
+
+    virtual void portCountChanged() override;
+
 
 private:
+    void refreshCode();
+
     void flush();
     bool exists(const std::string& method);
     void call(const std::string& method);
