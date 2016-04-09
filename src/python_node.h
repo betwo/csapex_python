@@ -11,7 +11,7 @@
 namespace csapex
 {
 
-class PythonNode : public TickableNode, public VariadicIO
+class PythonNode : public TickableNode, public Variadic
 {
 public:
     PythonNode();
