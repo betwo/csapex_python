@@ -27,7 +27,7 @@ BOOST_PYTHON_MODULE(libcsapex_python)
     ;
 
     def("getMessage",
-        static_cast<TokenConstPtr(*)(Input*)>(&msg::getMessage),
+        static_cast<TokenDataConstPtr(*)(Input*)>(&msg::getMessage),
         args("input"));
 
     def("getInt", &msg::getValue<int>, args("input"));
@@ -35,7 +35,7 @@ BOOST_PYTHON_MODULE(libcsapex_python)
     def("getString", &msg::getValue<std::string>, args("input"));
 
     def("publish",
-        static_cast<void(*)(Output*,TokenConstPtr)>(&msg::publish),
+        static_cast<void(*)(Output*,TokenDataConstPtr)>(&msg::publish),
         args("output", "message"));
 
     def("publishInt", msg::publish<int>, ( arg("output"), arg("message"), arg("frame")="/") );

@@ -87,7 +87,7 @@ void PythonNode::setCode(const std::string &code)
     if(node_handle_) {
         try {
             bp::list inputs;
-            for(InputPtr& i : node_handle_->getAllInputs()) {
+            for(InputPtr& i : node_handle_->getExternalInputs()) {
                 if(!node_handle_->isParameterInput(i.get())) {
                     inputs.append(i);
                 }
@@ -95,7 +95,7 @@ void PythonNode::setCode(const std::string &code)
             globals["inputs"] = inputs;
 
             bp::list outputs;
-            for(OutputPtr& o : node_handle_->getAllOutputs()) {
+            for(OutputPtr& o : node_handle_->getExternalOutputs()) {
                 if(!node_handle_->isParameterOutput(o.get())) {
                     outputs.append(o);
                 }
