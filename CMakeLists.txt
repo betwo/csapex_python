@@ -1,13 +1,33 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(csapex_python)
 
+include(ExternalProject)
+
+find_package(PythonLibs REQUIRED)
+
+ExternalProject_add(numpyopencv
+  GIT_REPOSITORY https://github.com/spillai/numpy-opencv-converter.git
+  PATCH_COMMAND ""
+  UPDATE_COMMAND ""
+  INSTALL_COMMAND cp np_opencv_converter.so  ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR numpy-opencv
+  BINARY_DIR numpy-opencv-build
+  CMAKE_ARGS ${COMMON_EXTERNAL_PROJECT_ARGS}
+  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}
+  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
+
+  CMAKE_ARGS -DPYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS} -DPYTHON_LIBRARY=${PYTHON_LIBRARY}
+)
+set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_converter.so)
+set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_module.so)
+set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
+
 find_package(catkin REQUIRED COMPONENTS
   csapex csapex_vision
 )
 
 find_package(Boost REQUIRED COMPONENTS python)
 
-find_package(PythonLibs REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
@@ -28,7 +48,6 @@ include_directories(
 
 
 
-
 catkin_python_setup()
 
 add_library(${PROJECT_NAME}
@@ -38,6 +57,7 @@ target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   ${catkin_LIBRARIES}
+  ${NUMPYOPENCV_LIBRARY}
   csapex
   csapex_qt
   Qt5::Core Qt5::Gui Qt5::Widgets
@@ -65,6 +85,11 @@ set(PYTHON_LIB_DIR ${CATKIN_DEVEL_PREFIX}/lib/python2.7/${DIST_DIR}/${PYTHON_PAC
 add_custom_command(TARGET ${TARGET_NAME}
   POST_BUILD
   COMMAND mkdir -p ${PYTHON_LIB_DIR} && cp -v ${PYLIB_OUTPUT_FILE} ${PYTHON_LIB_DIR}/${PYLIB_SO_NAME}
+  WORKING_DIRECTORY ${CATKIN_DEVEL_PREFIX}
+  COMMENT "Copying library files to python directory" )
+add_custom_command(TARGET numpyopencv
+  POST_BUILD
+  COMMAND mkdir -p ${PYTHON_LIB_DIR} && cp -v ${NUMPYOPENCV_MODULE} ${PYTHON_LIB_DIR}/np_opencv_module.so
   WORKING_DIRECTORY ${CATKIN_DEVEL_PREFIX}
   COMMENT "Copying library files to python directory" )
 

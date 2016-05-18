@@ -18,6 +18,49 @@ CSAPEX_REGISTER_CLASS(csapex::PythonNode, csapex::Node)
 using namespace csapex;
 namespace bp = boost::python;
 
+namespace
+{
+std::string parse_python_exception(){
+    PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
+    PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
+    std::string ret("Unfetchable Python error");
+
+    if(type_ptr != NULL){
+        bp::handle<> h_type(type_ptr);
+        bp::str type_pstr(h_type);
+        bp::extract<std::string> e_type_pstr(type_pstr);
+        if(e_type_pstr.check())
+            ret = e_type_pstr();
+        else
+            ret = "Unknown exception type";
+    }
+
+    if(value_ptr != NULL){
+            bp::handle<> h_val(value_ptr);
+            bp::str a(h_val);
+            bp::extract<std::string> returned(a);
+            if(returned.check())
+                ret +=  ": " + returned();
+            else
+                ret += std::string(": Unparseable Python error: ");
+        }
+
+    if(traceback_ptr != NULL){
+            bp::handle<> h_tb(traceback_ptr);
+            bp::object tb(bp::import("traceback"));
+            bp::object fmt_tb(tb.attr("format_tb"));
+            bp::object tb_list(fmt_tb(h_tb));
+            bp::object tb_str(bp::str("\n").join(tb_list));
+            bp::extract<std::string> returned(tb_str);
+            if(returned.check())
+                ret += ": " + returned();
+            else
+                ret += std::string(": Unparseable Python traceback");
+        }
+        return ret;
+}
+}
+
 PythonNode::PythonNode()
     : is_setup_(false), python_is_initialized_(false)
 {
@@ -76,7 +119,12 @@ void PythonNode::setCode(const std::string &code)
         bp::object main = bp::import("__main__");
         globals = main.attr("__dict__");
 
-        globals["csapex"] = bp::handle<>(PyImport_ImportModule("csapex"));
+        try {
+            globals["csapex"] = bp::import("csapex");
+        }catch(boost::python::error_already_set const &){
+            std::string perror_str = parse_python_exception();
+            std::cout << "Error in Python: " << perror_str << std::endl;
+        }
 
         python_is_initialized_ = true;
 
@@ -87,7 +135,7 @@ void PythonNode::setCode(const std::string &code)
     if(node_handle_) {
         try {
             bp::list inputs;
-            for(InputPtr& i : node_handle_->getExternalInputs()) {
+            for(InputPtr& i : variadic_inputs_) {
                 if(!node_handle_->isParameterInput(i.get())) {
                     inputs.append(i);
                 }
@@ -95,12 +143,24 @@ void PythonNode::setCode(const std::string &code)
             globals["inputs"] = inputs;
 
             bp::list outputs;
-            for(OutputPtr& o : node_handle_->getExternalOutputs()) {
+            for(OutputPtr& o : variadic_outputs_) {
                 if(!node_handle_->isParameterOutput(o.get())) {
                     outputs.append(o);
                 }
             }
             globals["outputs"] = outputs;
+
+            bp::list slot;
+            for(SlotPtr& i : variadic_slots_) {
+                slot.append(i);
+            }
+            globals["slots"] = slot;
+
+            bp::list events;
+            for(EventPtr& o : variadic_events_) {
+                events.append(o);
+            }
+            globals["events"] = events;
 
             bp::exec(code_.c_str(), globals, globals);
 
