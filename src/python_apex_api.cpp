@@ -12,14 +12,44 @@
 #include <csapex/msg/io.h>
 #include <csapex/msg/generic_value_message.hpp>
 #include <csapex_vision/yaml_io.hpp>
+#include <csapex_point_cloud/point_cloud_message.h>
 
 #include <numpy-opencv/np_opencv_converter.hpp>
 
 /// SYSTEM
 #include <boost/python.hpp>
+#include <pcl/PCLPointField.h>
+#include <pcl/console/print.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
+#include <boost/mpl/for_each.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
+namespace pcl {
+inline bool operator == (const pcl::PointXYZI& lhs, const pcl::PointXYZI& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.intensity == rhs.intensity;
+}
+inline bool operator == (const pcl::PointXYZRGB& lhs, const pcl::PointXYZRGB& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b;
+}
+inline bool operator == (const pcl::PointXYZRGBL& lhs, const pcl::PointXYZRGBL& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.label == rhs.label;
+}
+inline bool operator == (const pcl::PointXYZL& lhs, const pcl::PointXYZL& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.label == rhs.label;
+}
+inline bool operator == (const pcl::PointXYZ& lhs, const pcl::PointXYZ& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+inline bool operator == (const pcl::PointNormal& lhs, const pcl::PointNormal& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z&& lhs.normal_x == rhs.normal_x && lhs.normal_y == rhs.normal_y && lhs.normal_z == rhs.normal_z;
+}
+}
 
 using namespace csapex;
 using namespace boost::python;
+
+
 
 namespace  {
 
@@ -31,19 +61,19 @@ namespace  {
 void registerCore()
 {
     class_<Input, boost::noncopyable>("Input", no_init)
-    ;
+            ;
     class_<Output, boost::noncopyable>("Output", no_init)
-    ;
+            ;
     class_<Event, boost::noncopyable>("Event", no_init)
             .def("trigger", &Event::trigger)
-    ;
+            ;
     class_<Slot, boost::noncopyable>("Slot", no_init)
-    ;
+            ;
     class_<NodeModifier, boost::noncopyable>("NodeModifier", no_init)
-    ;
+            ;
 
     class_<TokenData, boost::noncopyable>("TokenData", no_init)
-    ;
+            ;
 
     def("getMessage", static_cast<TokenDataConstPtr(*)(Input*)>(&msg::getMessage), args("input"));
     def("publish", static_cast<void(*)(Output*,TokenDataConstPtr)>(&msg::publish), args("output", "message"));
@@ -56,6 +86,14 @@ void registerCore()
     register_ptr_to_python< std::shared_ptr<TokenData const> >();
 }
 
+template <typename M>
+void register_message()
+{
+    register_ptr_to_python< std::shared_ptr<M> >();
+    register_ptr_to_python< std::shared_ptr<M const> >();
+    implicitly_convertible<std::shared_ptr<M>, std::shared_ptr<TokenData> >();
+    implicitly_convertible<std::shared_ptr<M const>, std::shared_ptr<TokenData const> >();
+}
 
 /*
  * VALUE
@@ -123,10 +161,7 @@ void registerCsApexVision()
 
     def("publish", &publishCvMat, (args("output"), args("img"), args("encoding")));
 
-    register_ptr_to_python< std::shared_ptr<connection_types::CvMatMessage> >();
-    register_ptr_to_python< std::shared_ptr<connection_types::CvMatMessage const> >();
-    implicitly_convertible<std::shared_ptr<connection_types::CvMatMessage>, std::shared_ptr<TokenData> >();
-    implicitly_convertible<std::shared_ptr<connection_types::CvMatMessage const>, std::shared_ptr<TokenData const> >();
+    register_message< connection_types::CvMatMessage >();
 
     fs::python::init_and_export_converters();
 
@@ -145,6 +180,119 @@ void registerCsApexVision()
     parent.attr("depth") = enc::depth;
     parent.attr("lab") = enc::lab;
 }
+
+
+/*
+ * PCL
+ */
+
+typedef
+boost::variant<
+pcl::PointCloud<pcl::PointXYZI>::Ptr,
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr,
+pcl::PointCloud<pcl::PointXYZRGBL>::Ptr,
+pcl::PointCloud<pcl::PointXYZL>::Ptr,
+pcl::PointCloud<pcl::PointXYZ>::Ptr,
+pcl::PointCloud<pcl::PointNormal>::Ptr>
+pc_variant;
+
+struct RegisterPointType  {
+    RegisterPointType()
+    {}
+
+    template <typename PointT>
+    void operator () (PointT) const
+    {
+        std::string cloud_label = std::string("PointCloudMessage <") + connection_types::traits::name<PointT>() + ">";
+        class_<pcl::PointCloud<PointT>>(cloud_label.c_str(), init<>() )
+                .def_readwrite("points", &pcl::PointCloud<PointT>::points)
+                ;
+
+
+        std::string vector_label = std::string("vector <") + connection_types::traits::name<PointT>() + ">";
+        class_< std::vector<PointT, Eigen::aligned_allocator<PointT>> >(vector_label.c_str())
+                .def(vector_indexing_suite<std::vector<PointT, Eigen::aligned_allocator<PointT>>, true>())
+                ;
+
+        register_ptr_to_python< boost::shared_ptr<pcl::PointCloud<PointT>> >();
+        register_ptr_to_python< boost::shared_ptr<pcl::PointCloud<PointT> const> >();
+        implicitly_convertible< boost::shared_ptr<pcl::PointCloud<PointT>>, connection_types::PointCloudMessage::variant >();
+    }
+
+};
+
+struct variant_to_object : boost::static_visitor<PyObject *> {
+    static result_type convert(pc_variant const &v) {
+        return boost::apply_visitor(variant_to_object(), v);
+    }
+
+    template<typename T>
+    result_type operator()(T const &t) const {
+        return boost::python::incref(boost::python::object(t).ptr());
+    }
+};
+
+pc_variant getVariant(const connection_types::PointCloudMessage& cloud)
+{
+    return cloud.value;
+}
+
+void registerPointCloud()
+{
+    to_python_converter<pc_variant, variant_to_object>();
+
+    class_<connection_types::PointCloudMessage, bases<TokenData>>("PointCloudMessage", init<std::string, u_int64_t>() )
+            .add_property("value", &getVariant)
+            ;
+
+    register_message< connection_types::PointCloudMessage >();
+
+    boost::mpl::for_each<connection_types::PointCloudPointTypes>( RegisterPointType() );
+
+
+    class_<pcl::PointXYZI>(connection_types::traits::name<pcl::PointXYZI>().c_str())
+            .def_readwrite("x", &pcl::PointXYZI::x)
+            .def_readwrite("y", &pcl::PointXYZI::y)
+            .def_readwrite("z", &pcl::PointXYZI::z)
+            .def_readwrite("intensity", &pcl::PointXYZI::intensity)
+            ;
+    class_<pcl::PointXYZRGB>(connection_types::traits::name<pcl::PointXYZRGB>().c_str())
+            .def_readwrite("x", &pcl::PointXYZRGB::x)
+            .def_readwrite("y", &pcl::PointXYZRGB::y)
+            .def_readwrite("z", &pcl::PointXYZRGB::z)
+            .def_readwrite("r", &pcl::PointXYZRGB::r)
+            .def_readwrite("g", &pcl::PointXYZRGB::g)
+            .def_readwrite("b", &pcl::PointXYZRGB::b)
+            ;
+    class_<pcl::PointXYZRGBL>(connection_types::traits::name<pcl::PointXYZRGBL>().c_str())
+            .def_readwrite("x", &pcl::PointXYZRGBL::x)
+            .def_readwrite("y", &pcl::PointXYZRGBL::y)
+            .def_readwrite("z", &pcl::PointXYZRGBL::z)
+            .def_readwrite("r", &pcl::PointXYZRGBL::r)
+            .def_readwrite("g", &pcl::PointXYZRGBL::g)
+            .def_readwrite("b", &pcl::PointXYZRGBL::b)
+            .def_readwrite("lavel", &pcl::PointXYZRGBL::label)
+            ;
+    class_<pcl::PointXYZL>(connection_types::traits::name<pcl::PointXYZL>().c_str())
+            .def_readwrite("x", &pcl::PointXYZL::x)
+            .def_readwrite("y", &pcl::PointXYZL::y)
+            .def_readwrite("z", &pcl::PointXYZL::z)
+            .def_readwrite("lavel", &pcl::PointXYZL::label)
+            ;
+    class_<pcl::PointXYZ>(connection_types::traits::name<pcl::PointXYZ>().c_str())
+            .def_readwrite("x", &pcl::PointXYZ::x)
+            .def_readwrite("y", &pcl::PointXYZ::y)
+            .def_readwrite("z", &pcl::PointXYZ::z)
+            ;
+    class_<pcl::PointNormal>(connection_types::traits::name<pcl::PointNormal>().c_str())
+            .def_readwrite("x", &pcl::PointNormal::x)
+            .def_readwrite("y", &pcl::PointNormal::y)
+            .def_readwrite("z", &pcl::PointNormal::z)
+            .def_readwrite("normal_x", &pcl::PointNormal::normal_x)
+            .def_readwrite("normal_y", &pcl::PointNormal::normal_y)
+            .def_readwrite("normal_z", &pcl::PointNormal::normal_z)
+            ;
+}
 }
 
 
@@ -159,4 +307,6 @@ BOOST_PYTHON_MODULE(libcsapex_python)
     registerGenericValueMessages();
 
     registerCsApexVision();
+
+    registerPointCloud();
 }

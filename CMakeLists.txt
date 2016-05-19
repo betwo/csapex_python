@@ -22,8 +22,9 @@ set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_converter.so)
 set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_module.so)
 set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
+
 find_package(catkin REQUIRED COMPONENTS
-  csapex csapex_vision
+  csapex csapex_vision csapex_point_cloud
 )
 
 find_package(Boost REQUIRED COMPONENTS python)
