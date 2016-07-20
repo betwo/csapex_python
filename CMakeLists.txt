@@ -18,8 +18,8 @@ ExternalProject_add(numpyopencv
 
   CMAKE_ARGS -DPYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS} -DPYTHON_LIBRARY=${PYTHON_LIBRARY}
 )
-set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_converter.so)
-set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/np_opencv_module.so)
+set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_converter.so)
+set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_module.so)
 set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 
