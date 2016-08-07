@@ -85,6 +85,8 @@ void registerCore()
     register_ptr_to_python< std::shared_ptr<Slot> >();
     register_ptr_to_python< std::shared_ptr<TokenData> >();
     register_ptr_to_python< std::shared_ptr<TokenData const> >();
+
+    apex_assert(opencv_error == 0);
 }
 
 template <typename M>
