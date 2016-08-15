@@ -24,7 +24,7 @@ set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 
 find_package(catkin REQUIRED COMPONENTS
-  csapex csapex_vision csapex_point_cloud
+  csapex csapex_opencv csapex_point_cloud
 )
 
 find_package(Boost REQUIRED COMPONENTS python)
