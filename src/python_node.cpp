@@ -71,8 +71,8 @@ PythonNode::PythonNode()
                            "def process(): \n"
                            "  print(inputs)\n"
                            "  print(outputs)\n"
-                           "  a = csapex.getString(inputs[0])\n"
-                           "  csapex.publishString(outputs[0], a)\n"
+                           "  a = csapex.getMessage(inputs[0])\n"
+                           "  csapex.publishMessage(outputs[0], a)\n"
             ;
     setCode(def_code);
 }

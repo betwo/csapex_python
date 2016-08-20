@@ -1,3 +1,8 @@
+<library path="libcsapex_python_core">
+<class type="csapex::RegisterPython" base_class_type="csapex::CorePlugin">
+</class>
+</library>
+
 <library path="libcsapex_python_node">
 <class type="csapex::PythonNode" base_class_type="csapex::Node">
   <description>Execute Python Script</description>

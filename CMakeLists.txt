@@ -35,7 +35,7 @@ set(CMAKE_AUTOMOC ON)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES csapex_python
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS csapex
 )
 
@@ -53,6 +53,7 @@ catkin_python_setup()
 
 add_library(${PROJECT_NAME}
     src/python_apex_api.cpp
+    src/python_wrapper.cpp
 )
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
@@ -95,24 +96,35 @@ add_custom_command(TARGET numpyopencv
   COMMENT "Copying library files to python directory" )
 
 
-
-add_library(csapex_python_node
-    src/python_node.cpp
+add_library(${PROJECT_NAME}_core
+    src/register_python.cpp
 )
 
-target_link_libraries(csapex_python_node
-    csapex_python
+target_link_libraries(${PROJECT_NAME}_core
+    ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
 )
 
-add_library(csapex_python_qt
+
+add_library(${PROJECT_NAME}_node
+    src/python_node.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}_node
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${PYTHON_LIBRARIES}
+)
+
+add_library(${PROJECT_NAME}_qt
     src/python_node_adapter.cpp
 )
 
-target_link_libraries(csapex_python_qt
-    csapex_python
+target_link_libraries(${PROJECT_NAME}_qt
+    ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     ${Boost_LIBRARIES}
     ${PYTHON_LIBRARIES}
@@ -125,16 +137,20 @@ target_link_libraries(csapex_python_qt
 install(FILES plugins.xml
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(TARGETS csapex_python_node
+install(TARGETS ${PROJECT_NAME}_core
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
-install(TARGETS csapex_python_qt
+install(TARGETS ${PROJECT_NAME}_node
+        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
+install(TARGETS ${PROJECT_NAME}_qt
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 
-install(TARGETS csapex_python
+install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})

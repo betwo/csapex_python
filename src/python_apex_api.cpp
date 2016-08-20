@@ -13,6 +13,7 @@
 #include <csapex/msg/generic_value_message.hpp>
 #include <csapex_opencv/yaml_io.hpp>
 #include <csapex_point_cloud/point_cloud_message.h>
+#include <csapex/msg/any_message.h>
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy-opencv/np_opencv_converter.hpp>
@@ -59,6 +60,15 @@ namespace  {
  * CORE
  */
 
+Input* addInput(NodeModifier* modifier, const std::string& label, bool optional)
+{
+    return modifier->addInput(connection_types::makeEmpty<connection_types::AnyMessage>(), label, optional);
+}
+Output* addOutput(NodeModifier* modifier, const std::string& label)
+{
+    return modifier->addOutput(connection_types::makeEmpty<connection_types::AnyMessage>(), label);
+}
+
 void registerCore()
 {
     class_<Input, boost::noncopyable>("Input", no_init)
@@ -75,6 +85,9 @@ void registerCore()
 
     class_<TokenData, boost::noncopyable>("TokenData", no_init)
             ;
+
+    def("addInput", &addInput, args("label", "optional"), return_value_policy<reference_existing_object>());
+    def("addOutput", &addOutput, args("label"), return_value_policy<reference_existing_object>());
 
     def("getMessage", static_cast<TokenDataConstPtr(*)(Input*)>(&msg::getMessage), args("input"));
     def("publish", static_cast<void(*)(Output*,TokenDataConstPtr)>(&msg::publish), args("output", "message"));
