@@ -22,7 +22,6 @@ set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv
 set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_module.so)
 set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
-
 find_package(catkin REQUIRED COMPONENTS
   csapex csapex_opencv csapex_point_cloud
 )
