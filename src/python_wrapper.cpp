@@ -130,30 +130,30 @@ void PythonWrapper::setupIO()
         if(node_handle_) {
             try {
                 bp::list inputs;
-                for(Input* i : node_modifier_->getMessageInputs()) {
-                    if(!node_handle_->isParameterInput(i)) {
-                        inputs.append(bp::pointer_wrapper<Input*>(i));
+                for(InputPtr i : node_modifier_->getMessageInputs()) {
+                    if(!node_handle_->isParameterInput(i.get())) {
+                        inputs.append(bp::pointer_wrapper<Input*>(i.get()));
                     }
                 }
                 globals["inputs"] = inputs;
 
                 bp::list outputs;
-                for(Output* o : node_modifier_->getMessageOutputs()) {
-                    if(!node_handle_->isParameterOutput(o)) {
-                        outputs.append(bp::pointer_wrapper<Output*>(o));
+                for(OutputPtr o : node_modifier_->getMessageOutputs()) {
+                    if(!node_handle_->isParameterOutput(o.get())) {
+                        outputs.append(bp::pointer_wrapper<Output*>(o.get()));
                     }
                 }
                 globals["outputs"] = outputs;
 
                 bp::list slot;
-                for(Slot* i : node_modifier_->getSlots()) {
-                    slot.append(bp::pointer_wrapper<Slot*>(i));
+                for(SlotPtr i : node_modifier_->getSlots()) {
+                    slot.append(bp::pointer_wrapper<Slot*>(i.get()));
                 }
                 globals["slots"] = slot;
 
                 bp::list events;
-                for(Event* o : node_modifier_->getEvents()) {
-                    events.append(bp::pointer_wrapper<Event*>(o));
+                for(EventPtr o : node_modifier_->getEvents()) {
+                    events.append(bp::pointer_wrapper<Event*>(o.get()));
                 }
                 globals["events"] = events;
 
