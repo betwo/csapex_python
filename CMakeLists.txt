@@ -59,8 +59,6 @@ target_link_libraries(${PROJECT_NAME}
   ${PYTHON_LIBRARIES}
   ${catkin_LIBRARIES}
   ${NUMPYOPENCV_LIBRARY}
-  csapex
-  csapex_qt
   Qt5::Core Qt5::Gui Qt5::Widgets
 )
 
