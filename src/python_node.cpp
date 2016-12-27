@@ -72,7 +72,7 @@ PythonNode::PythonNode()
                            "  print(inputs)\n"
                            "  print(outputs)\n"
                            "  a = csapex.getMessage(inputs[0])\n"
-                           "  csapex.publishMessage(outputs[0], a)\n"
+                           "  csapex.publish(outputs[0], a)\n"
             ;
     setCode(def_code);
 }
@@ -166,8 +166,6 @@ void PythonNode::setCode(const std::string &code)
 
             flush();
 
-            setTickEnabled(globals.contains("tick"));
-
             is_setup_ = true;
 
         } catch( bp::error_already_set ) {
@@ -192,8 +190,6 @@ void PythonNode::setup(NodeModifier& node_modifier)
     }
 
     refreshCode();
-
-    setTickEnabled(false);
 }
 
 void PythonNode::setupParameters(Parameterizable &parameters)
@@ -201,7 +197,7 @@ void PythonNode::setupParameters(Parameterizable &parameters)
     setupVariadicParameters(parameters);
 }
 
-bool PythonNode::canTick()
+bool PythonNode::canProcess() const
 {
     return is_setup_;
 }
@@ -210,13 +206,6 @@ void PythonNode::flush()
 {
     bp::exec("import sys\n"
              "sys.stdout.flush()\n", globals, globals);
-}
-
-void PythonNode::tick()
-{
-    if(exists("tick")) {
-        call("tick");
-    }
 }
 
 void PythonNode::call(const std::string& method)

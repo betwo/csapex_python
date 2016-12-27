@@ -2,7 +2,7 @@
 #define PYTHON_NODE_H
 
 /// PROJECT
-#include <csapex/model/tickable_node.h>
+#include <csapex/model/node.h>
 #include <csapex/model/variadic_io.h>
 
 /// SYSTEM
@@ -11,7 +11,7 @@
 namespace csapex
 {
 
-class PythonWrapper : public TickableNode
+class PythonWrapper : public Node
 {
 public:
     PythonWrapper();
@@ -22,9 +22,10 @@ public:
 
     virtual void setup(csapex::NodeModifier& node_modifier) override;
     virtual void setupParameters(Parameterizable &parameters) override;
-    virtual bool canTick() override;
-    virtual void tick() override;
+
+    virtual bool canProcess() const override;
     virtual void process() override;
+
     virtual void processMarker(const connection_types::MessageConstPtr &marker) override;
 
 

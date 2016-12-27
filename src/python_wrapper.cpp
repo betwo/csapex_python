@@ -161,8 +161,6 @@ void PythonWrapper::setupIO()
 
                 flush();
 
-                setTickEnabled(globals.contains("tick"));
-
                 is_setup_ = true;
 
             } catch( bp::error_already_set ) {
@@ -183,15 +181,13 @@ void PythonWrapper::setup(NodeModifier& node_modifier)
 
         is_setup_ = false;
     }
-
-    setTickEnabled(false);
 }
 
 void PythonWrapper::setupParameters(Parameterizable &parameters)
 {
 }
 
-bool PythonWrapper::canTick()
+bool PythonWrapper::canProcess() const
 {
     return is_setup_;
 }
@@ -200,15 +196,6 @@ void PythonWrapper::flush()
 {
     bp::exec("import sys\n"
              "sys.stdout.flush()\n", globals, globals);
-}
-
-void PythonWrapper::tick()
-{
-    setupIO();
-
-    if(exists("tick")) {
-        call("tick", nullptr);
-    }
 }
 
 void PythonWrapper::call(const std::string& method, NodeModifier* modifier)
