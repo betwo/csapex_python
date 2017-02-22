@@ -37,6 +37,9 @@ inline bool operator == (const pcl::PointXYZRGB& lhs, const pcl::PointXYZRGB& rh
 inline bool operator == (const pcl::PointXYZRGBL& lhs, const pcl::PointXYZRGBL& rhs) noexcept {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.label == rhs.label;
 }
+inline bool operator == (const pcl::PointXYZRGBA& lhs, const pcl::PointXYZRGBA& rhs) noexcept {
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.r == rhs.r && lhs.g == rhs.g && lhs.b == rhs.b && lhs.a == rhs.a;
+}
 inline bool operator == (const pcl::PointXYZL& lhs, const pcl::PointXYZL& rhs) noexcept {
     return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.label == rhs.label;
 }
@@ -207,6 +210,7 @@ boost::variant<
 pcl::PointCloud<pcl::PointXYZI>::Ptr,
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr,
 pcl::PointCloud<pcl::PointXYZRGBL>::Ptr,
+pcl::PointCloud<pcl::PointXYZRGBA>::Ptr,
 pcl::PointCloud<pcl::PointXYZL>::Ptr,
 pcl::PointCloud<pcl::PointXYZ>::Ptr,
 pcl::PointCloud<pcl::PointNormal>::Ptr>
@@ -287,13 +291,22 @@ void registerPointCloud()
             .def_readwrite("r", &pcl::PointXYZRGBL::r)
             .def_readwrite("g", &pcl::PointXYZRGBL::g)
             .def_readwrite("b", &pcl::PointXYZRGBL::b)
-            .def_readwrite("lavel", &pcl::PointXYZRGBL::label)
+            .def_readwrite("label", &pcl::PointXYZRGBL::label)
+            ;
+    class_<pcl::PointXYZRGBA>(connection_types::traits::name<pcl::PointXYZRGBA>().c_str())
+            .def_readwrite("x", &pcl::PointXYZRGBA::x)
+            .def_readwrite("y", &pcl::PointXYZRGBA::y)
+            .def_readwrite("z", &pcl::PointXYZRGBA::z)
+            .def_readwrite("r", &pcl::PointXYZRGBA::r)
+            .def_readwrite("g", &pcl::PointXYZRGBA::g)
+            .def_readwrite("b", &pcl::PointXYZRGBA::b)
+            .def_readwrite("a", &pcl::PointXYZRGBA::a)
             ;
     class_<pcl::PointXYZL>(connection_types::traits::name<pcl::PointXYZL>().c_str())
             .def_readwrite("x", &pcl::PointXYZL::x)
             .def_readwrite("y", &pcl::PointXYZL::y)
             .def_readwrite("z", &pcl::PointXYZL::z)
-            .def_readwrite("lavel", &pcl::PointXYZL::label)
+            .def_readwrite("label", &pcl::PointXYZL::label)
             ;
     class_<pcl::PointXYZ>(connection_types::traits::name<pcl::PointXYZ>().c_str())
             .def_readwrite("x", &pcl::PointXYZ::x)
