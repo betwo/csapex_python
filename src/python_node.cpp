@@ -5,7 +5,7 @@
 #include <csapex/utility/register_apex_plugin.h>
 #include <csapex/model/node_handle.h>
 #include <csapex/msg/any_message.h>
-#include <csapex/serialization/serialization.h>
+#include <csapex/serialization/node_serializer.h>
 #include <csapex/msg/no_message.h>
 #include <csapex/msg/end_of_sequence_message.h>
 #include <csapex/msg/end_of_program_message.h>
