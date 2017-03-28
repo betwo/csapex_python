@@ -39,7 +39,7 @@ public:
     {
         CsApexCore* core_ptr = &core;
 
-        core.getNodeFactory().manifest_loaded.connect([this, core_ptr](const std::string& manifest_file, const TiXmlElement* root) {
+        core.getNodeFactory()->manifest_loaded.connect([this, core_ptr](const std::string& manifest_file, const TiXmlElement* root) {
 
             const TiXmlElement* library = root;
             if (library->ValueStr() != "library") {
@@ -84,7 +84,7 @@ public:
                         constructor->setIcon(icon);
                         constructor->setTags(tags);
 
-                        core_ptr->getNodeFactory().registerNodeType(constructor);
+                        core_ptr->getNodeFactory()->registerNodeType(constructor);
 
                     }
 
