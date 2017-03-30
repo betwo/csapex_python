@@ -173,7 +173,7 @@ void registerCsApexVision()
     class_<Encoding>("Encoding")
             ;
 
-    class_<connection_types::CvMatMessage, bases<TokenData>>("CvMatMessage", init<Encoding, u_int64_t>() )
+    class_<connection_types::CvMatMessage, bases<TokenData>>("CvMatMessage", init<Encoding, std::string, u_int64_t>() )
             .add_property("encoding", &getEncoding)
             .add_property("value", &getTemplateValue<connection_types::CvMatMessage, cv::Mat>)
             ;
