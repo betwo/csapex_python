@@ -135,7 +135,7 @@ void PythonNode::setCode(const std::string &code)
     if(node_handle_) {
         try {
             bp::list inputs;
-            for(InputPtr& i : variadic_inputs_) {
+            for(const InputPtr& i : variadic_inputs_) {
                 if(!node_handle_->isParameterInput(i.get())) {
                     inputs.append(i);
                 }
@@ -143,7 +143,7 @@ void PythonNode::setCode(const std::string &code)
             globals["inputs"] = inputs;
 
             bp::list outputs;
-            for(OutputPtr& o : variadic_outputs_) {
+            for(const OutputPtr& o : variadic_outputs_) {
                 if(!node_handle_->isParameterOutput(o.get())) {
                     outputs.append(o);
                 }
@@ -151,13 +151,13 @@ void PythonNode::setCode(const std::string &code)
             globals["outputs"] = outputs;
 
             bp::list slot;
-            for(SlotPtr& i : variadic_slots_) {
+            for(const SlotPtr&& i : variadic_slots_) {
                 slot.append(i);
             }
             globals["slots"] = slot;
 
             bp::list events;
-            for(EventPtr& o : variadic_events_) {
+            for(const EventPtr& o : variadic_events_) {
                 events.append(o);
             }
             globals["events"] = events;
