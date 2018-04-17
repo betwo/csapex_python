@@ -65,11 +65,11 @@ namespace  {
 
 Input* addInput(NodeModifier* modifier, const std::string& label, bool optional)
 {
-    return modifier->addInput(connection_types::makeEmpty<connection_types::AnyMessage>(), label, optional);
+    return modifier->addInput(makeEmpty<connection_types::AnyMessage>(), label, optional);
 }
 Output* addOutput(NodeModifier* modifier, const std::string& label)
 {
-    return modifier->addOutput(connection_types::makeEmpty<connection_types::AnyMessage>(), label);
+    return modifier->addOutput(makeEmpty<connection_types::AnyMessage>(), label);
 }
 
 void registerCore()
@@ -163,7 +163,7 @@ cv::Mat getCvMat(const connection_types::CvMatMessage& cvmat)
 
 void publishCvMat(Output* output, const cv::Mat& cvmat, Encoding enc)
 {
-    connection_types::CvMatMessage::Ptr msg = connection_types::makeEmpty<connection_types::CvMatMessage>();
+    connection_types::CvMatMessage::Ptr msg = makeEmpty<connection_types::CvMatMessage>();
     msg->value = cvmat;
     msg->setEncoding(enc);
     msg::publish(output, msg);
