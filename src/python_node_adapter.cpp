@@ -53,12 +53,12 @@ bool PythonNodeAdapter::eventFilter(QObject* o, QEvent* e)
     return false;
 }
 
-Memento::Ptr PythonNodeAdapter::getState() const
+GenericStatePtr PythonNodeAdapter::getState() const
 {
     return std::shared_ptr<State>(new State(state));
 }
 
-void PythonNodeAdapter::setParameterState(Memento::Ptr memento)
+void PythonNodeAdapter::setParameterState(GenericStatePtr memento)
 {
     std::shared_ptr<State> m = std::dynamic_pointer_cast<State> (memento);
     apex_assert(m.get());

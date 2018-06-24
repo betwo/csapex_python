@@ -66,8 +66,8 @@ public:
 
     virtual void setupUi(QBoxLayout* layout);
 
-    virtual Memento::Ptr getState() const override;
-    virtual void setParameterState(Memento::Ptr memento) override;
+    virtual GenericStatePtr getState() const override;
+    virtual void setParameterState(GenericStatePtr memento) override;
 
     virtual bool isResizable() const override;
     virtual void setManualResize(bool manual);
@@ -79,7 +79,7 @@ private Q_SLOTS:
 
 private:
 
-    struct State : public Memento {
+    struct State : public GenericState {
         int width;
         int height;
 
