@@ -6,10 +6,10 @@ include(ExternalProject)
 find_package(PythonLibs REQUIRED)
 
 ExternalProject_add(numpyopencv
-  GIT_REPOSITORY https://github.com/spillai/numpy-opencv-converter.git
+  GIT_REPOSITORY https://github.com/betwo/numpy-opencv-converter.git
   PATCH_COMMAND ""
   UPDATE_COMMAND ""
-  INSTALL_COMMAND cp np_opencv_converter.so  ${CMAKE_CURRENT_BINARY_DIR}
+  INSTALL_COMMAND cp libnp_opencv_converter.so  ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR numpy-opencv
   BINARY_DIR numpy-opencv-build
   CMAKE_ARGS ${COMMON_EXTERNAL_PROJECT_ARGS}
@@ -18,7 +18,7 @@ ExternalProject_add(numpyopencv
 
   CMAKE_ARGS -DPYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS} -DPYTHON_LIBRARY=${PYTHON_LIBRARY}
 )
-set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_converter.so)
+set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/libnp_opencv_converter.so)
 set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_module.so)
 set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
@@ -45,7 +45,6 @@ include_directories(
   ${PYTHON_INCLUDE_DIRS}
   ${Qt5Core_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS}
 )
-
 
 
 catkin_python_setup()

@@ -7,6 +7,7 @@
 #include <csapex/factory/node_factory.h>
 #include <csapex/utility/register_apex_plugin.h>
 #include <csapex/model/node_constructor.h>
+#include <csapex/factory/node_factory_impl.h>
 #include "python_wrapper.h"
 
 /// SYSTEM

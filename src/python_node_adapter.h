@@ -2,7 +2,8 @@
 #define PYTHON_NODE_ADAPTER_H
 
 /// PROJECT
-#include <csapex/view/node/default_node_adapter.h>
+#include <csapex/view/node/resizable_node_adapter.h>
+#include <csapex/model/generic_state.h>
 
 /// COMPONENT
 #include "python_node.h"
@@ -57,25 +58,26 @@ private:
     QRegExp triDoubleQuote;
 };
 
-class PythonNodeAdapter : public QObject, public DefaultNodeAdapter
+class PythonNodeAdapter : public QObject, public ResizableNodeAdapter
 {
     Q_OBJECT
 
 public:
-    PythonNodeAdapter(NodeHandleWeakPtr worker, NodeBox* parent, std::weak_ptr<PythonNode> node);
+    PythonNodeAdapter(NodeFacadeImplementationPtr node, NodeBox* parent, std::weak_ptr<PythonNode> instance);
 
     virtual void setupUi(QBoxLayout* layout);
 
     virtual GenericStatePtr getState() const override;
     virtual void setParameterState(GenericStatePtr memento) override;
 
-    virtual bool isResizable() const override;
     virtual void setManualResize(bool manual);
 
     virtual bool eventFilter(QObject *, QEvent *) override;
 
 private Q_SLOTS:
     void compile();
+
+    void resize(const QSize& size) override;
 
 private:
 
@@ -98,7 +100,7 @@ private:
     };
 
 private:
-    std::weak_ptr<PythonNode> wrapped_;
+    std::weak_ptr<PythonNode> instance_;
     State state;
 
     QTextEdit* editor;

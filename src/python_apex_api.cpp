@@ -134,7 +134,7 @@ void register_generic_value_message(const std::string& name)
     implicitly_convertible<std::shared_ptr<connection_types::GenericValueMessage<Payload>>, std::shared_ptr<TokenData> >();
     implicitly_convertible<std::shared_ptr<connection_types::GenericValueMessage<Payload> const>, std::shared_ptr<TokenData const> >();
 
-    def("publish", msg::publish<Payload>, ( arg("output"), arg("message"), arg("frame")="/") );
+    def("publish", static_cast<void(*)(Output*, Payload, std::string)>(&msg::publish<Payload>), ( arg("output"), arg("message"), arg("frame")="/") );
 }
 
 void registerGenericValueMessages()

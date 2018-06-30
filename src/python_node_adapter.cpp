@@ -5,6 +5,7 @@
 #include <csapex/msg/io.h>
 #include <csapex/view/utility/register_node_adapter.h>
 #include <csapex/utility/assert.h>
+#include <csapex/model/node_facade_impl.h>
 
 /// SYSTEM
 #include <QPushButton>
@@ -14,16 +15,16 @@
 
 using namespace csapex;
 
-CSAPEX_REGISTER_NODE_ADAPTER(PythonNodeAdapter, csapex::PythonNode)
+CSAPEX_REGISTER_LOCAL_NODE_ADAPTER(PythonNodeAdapter, csapex::PythonNode)
 
-PythonNodeAdapter::PythonNodeAdapter(NodeHandleWeakPtr worker, NodeBox* parent, std::weak_ptr<PythonNode> node)
-    : DefaultNodeAdapter(worker, parent), wrapped_(node)
+PythonNodeAdapter::PythonNodeAdapter(NodeFacadeImplementationPtr node, NodeBox* parent, std::weak_ptr<PythonNode> instance)
+    : ResizableNodeAdapter(node, parent), instance_(instance)
 {
 }
 
 void PythonNodeAdapter::setupUi(QBoxLayout* layout)
 {
-    auto node = wrapped_.lock();
+    auto node = instance_.lock();
     if(!node) {
         return;
     }
@@ -53,6 +54,13 @@ bool PythonNodeAdapter::eventFilter(QObject* o, QEvent* e)
     return false;
 }
 
+
+void PythonNodeAdapter::resize(const QSize& size)
+{
+    editor->resize(size);
+}
+
+
 GenericStatePtr PythonNodeAdapter::getState() const
 {
     return std::shared_ptr<State>(new State(state));
@@ -68,12 +76,6 @@ void PythonNodeAdapter::setParameterState(GenericStatePtr memento)
     editor->setMinimumSize(state.width, state.height);
 }
 
-
-bool PythonNodeAdapter::isResizable() const
-{
-    return true;
-}
-
 void PythonNodeAdapter::setManualResize(bool manual)
 {
     if(manual) {
@@ -85,7 +87,7 @@ void PythonNodeAdapter::setManualResize(bool manual)
 
 void PythonNodeAdapter::compile()
 {
-    auto node = wrapped_.lock();
+    auto node = instance_.lock();
     if(!node) {
         return;
     }

@@ -131,7 +131,7 @@ void PythonWrapper::setupIO()
             try {
                 bp::list inputs;
                 for(const InputPtr& i : node_modifier_->getMessageInputs()) {
-                    if(!node_handle_->isParameterInput(i.get())) {
+                    if(!node_handle_->isParameterInput(i->getUUID())) {
                         inputs.append(bp::pointer_wrapper<Input*>(i.get()));
                     }
                 }
@@ -139,7 +139,7 @@ void PythonWrapper::setupIO()
 
                 bp::list outputs;
                 for(const OutputPtr& o : node_modifier_->getMessageOutputs()) {
-                    if(!node_handle_->isParameterOutput(o.get())) {
+                    if(!node_handle_->isParameterOutput(o->getUUID())) {
                         outputs.append(bp::pointer_wrapper<Output*>(o.get()));
                     }
                 }

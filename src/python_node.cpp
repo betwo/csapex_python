@@ -9,6 +9,8 @@
 #include <csapex/msg/no_message.h>
 #include <csapex/msg/end_of_sequence_message.h>
 #include <csapex/msg/end_of_program_message.h>
+#include <csapex/msg/input.h>
+#include <csapex/msg/output.h>
 
 /// SYSTEM
 #include <yaml-cpp/yaml.h>
@@ -136,7 +138,7 @@ void PythonNode::setCode(const std::string &code)
         try {
             bp::list inputs;
             for(const InputPtr& i : variadic_inputs_) {
-                if(!node_handle_->isParameterInput(i.get())) {
+                if(!node_handle_->isParameterInput(i->getUUID())) {
                     inputs.append(i);
                 }
             }
@@ -144,14 +146,14 @@ void PythonNode::setCode(const std::string &code)
 
             bp::list outputs;
             for(const OutputPtr& o : variadic_outputs_) {
-                if(!node_handle_->isParameterOutput(o.get())) {
+                if(!node_handle_->isParameterOutput(o->getUUID())) {
                     outputs.append(o);
                 }
             }
             globals["outputs"] = outputs;
 
             bp::list slot;
-            for(const SlotPtr&& i : variadic_slots_) {
+            for(const SlotPtr& i : variadic_slots_) {
                 slot.append(i);
             }
             globals["slots"] = slot;
@@ -223,6 +225,7 @@ void PythonNode::call(const std::string& method)
 
     } catch( bp::error_already_set ) {
         PyErr_Print();
+        node_handle_->setError("Error in Python script.");
     }
 
     PyEval_ReleaseThread(thread_state);
