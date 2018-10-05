@@ -60,6 +60,7 @@ target_link_libraries(${PROJECT_NAME}
   ${NUMPYOPENCV_LIBRARY}
   Qt5::Core Qt5::Gui Qt5::Widgets
 )
+add_dependencies(${PROJECT_NAME} numpyopencv)
 
 SET(PY_PROJECT_NAME ${PROJECT_NAME})
 set(PYTHON_PACKAGE_NAME "csapex")
