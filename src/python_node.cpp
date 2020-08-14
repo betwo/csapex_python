@@ -14,6 +14,7 @@
 
 /// SYSTEM
 #include <yaml-cpp/yaml.h>
+#include <iostream>
 
 CSAPEX_REGISTER_CLASS(csapex::PythonNode, csapex::Node)
 

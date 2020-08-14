@@ -16,6 +16,7 @@
 
 /// SYSTEM
 #include <yaml-cpp/yaml.h>
+#include <iostream>
 
 using namespace csapex;
 namespace bp = boost::python;

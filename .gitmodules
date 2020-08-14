@@ -1,0 +1,3 @@
+[submodule "external/numpy-converter"]
+	path = external/numpy-converter
+	url = https://github.com/betwo/numpy-opencv-converter.git

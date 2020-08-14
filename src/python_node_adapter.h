@@ -65,12 +65,12 @@ class PythonNodeAdapter : public QObject, public ResizableNodeAdapter
 public:
     PythonNodeAdapter(NodeFacadeImplementationPtr node, NodeBox* parent, std::weak_ptr<PythonNode> instance);
 
-    virtual void setupUi(QBoxLayout* layout);
+    virtual void setupUi(QBoxLayout* layout) override;
 
     virtual GenericStatePtr getState() const override;
     virtual void setParameterState(GenericStatePtr memento) override;
 
-    virtual void setManualResize(bool manual);
+    virtual void setManualResize(bool manual) override;
 
     virtual bool eventFilter(QObject *, QEvent *) override;
 

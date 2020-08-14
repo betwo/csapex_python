@@ -12,6 +12,7 @@
 #include <QBoxLayout>
 #include <QEvent>
 #include <QResizeEvent>
+#include <QString>
 
 using namespace csapex;
 
@@ -137,15 +138,15 @@ PythonSyntaxHighlighter::PythonSyntaxHighlighter(QTextDocument *parent)
 
 void PythonSyntaxHighlighter::initializeRules()
 {
-    foreach (QString currKeyword, keywords)
+    for(const auto& currKeyword: keywords)
     {
         rules.append(HighlightingRule(QString("\\b%1\\b").arg(currKeyword), 0, basicStyles.value("keyword")));
     }
-    foreach (QString currOperator, operators)
+    for(const auto& currOperator: operators)
     {
         rules.append(HighlightingRule(QString("%1").arg(currOperator), 0, basicStyles.value("operator")));
     }
-    foreach (QString currBrace, braces)
+    for(const auto& currBrace: braces)
     {
         rules.append(HighlightingRule(QString("%1").arg(currBrace), 0, basicStyles.value("brace")));
     }
@@ -178,7 +179,7 @@ void PythonSyntaxHighlighter::initializeRules()
 
 void PythonSyntaxHighlighter::highlightBlock(const QString &text)
 {
-    foreach (HighlightingRule currRule, rules)
+    for (const auto currRule: rules)
     {
         int idx = currRule.pattern.indexIn(text, 0);
         while (idx >= 0)

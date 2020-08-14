@@ -16,7 +16,7 @@
 #include <csapex/msg/any_message.h>
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy-opencv/np_opencv_converter.hpp>
+#include <np_opencv_converter.hpp>
 
 /// SYSTEM
 #include <boost/python.hpp>

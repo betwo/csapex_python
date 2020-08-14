@@ -5,22 +5,12 @@ include(ExternalProject)
 
 find_package(PythonLibs REQUIRED)
 
-ExternalProject_add(numpyopencv
-  GIT_REPOSITORY https://github.com/betwo/numpy-opencv-converter.git
-  PATCH_COMMAND ""
-  UPDATE_COMMAND ""
-  INSTALL_COMMAND cp libnp_opencv_converter.so  ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR numpy-opencv
-  BINARY_DIR numpy-opencv-build
-  CMAKE_ARGS ${COMMON_EXTERNAL_PROJECT_ARGS}
-  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}
-  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}
 
-  CMAKE_ARGS -DPYTHON_INCLUDE_DIRS=${PYTHON_INCLUDE_DIRS} -DPYTHON_LIBRARY=${PYTHON_LIBRARY}
-)
-set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/libnp_opencv_converter.so)
-set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/numpy-opencv-build/np_opencv_module.so)
+set(NUMPYOPENCV_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/external/numpy-converter/libnp_opencv_converter.so)
+set(NUMPYOPENCV_MODULE ${CMAKE_CURRENT_BINARY_DIR}/external/numpy-converter/np_opencv_module.so)
 set(NUMPYOPENCV_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
+
+add_subdirectory(external)
 
 find_package(catkin REQUIRED COMPONENTS
   csapex csapex_opencv csapex_point_cloud
@@ -31,6 +21,7 @@ find_package(Boost REQUIRED COMPONENTS python)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 set(CMAKE_AUTOMOC ON)
+add_definitions(-DQT_NO_KEYWORDS)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -60,6 +51,10 @@ target_link_libraries(${PROJECT_NAME}
   ${NUMPYOPENCV_LIBRARY}
   Qt5::Core Qt5::Gui Qt5::Widgets
 )
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/external/numpy-converter
+)
 add_dependencies(${PROJECT_NAME} numpyopencv)
 
 SET(PY_PROJECT_NAME ${PROJECT_NAME})
@@ -72,15 +67,20 @@ get_property(PYLIB_OUTPUT_FILE TARGET ${TARGET_NAME} PROPERTY LOCATION)
 get_filename_component(PYLIB_OUTPUT_NAME ${PYLIB_OUTPUT_FILE} NAME_WE)
 set(PYLIB_SO_NAME ${PYLIB_OUTPUT_NAME}.so)
 
-SET(DIST_DIR dist-packages)
+
+if(${PYTHON_VERSION_STRING} VERSION_GREATER_EQUAL 3.0.0)
+  set(DIST_DIR python3/dist-packages)
+else()
+  set(DIST_DIR python2.7/dist-packages)
+endif()
 
 install(TARGETS ${TARGET_NAME}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/${DIST_DIR}/${PYTHON_PACKAGE_NAME}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/${DIST_DIR}/${PYTHON_PACKAGE_NAME}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DIST_DIR}/${PYTHON_PACKAGE_NAME}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${DIST_DIR}/${PYTHON_PACKAGE_NAME}
 )
 
 # Cause the library to be output in the correct directory.
-set(PYTHON_LIB_DIR ${CATKIN_DEVEL_PREFIX}/lib/python2.7/${DIST_DIR}/${PYTHON_PACKAGE_NAME})
+set(PYTHON_LIB_DIR ${CATKIN_DEVEL_PREFIX}/lib/${DIST_DIR}/${PYTHON_PACKAGE_NAME})
 add_custom_command(TARGET ${TARGET_NAME}
   POST_BUILD
   COMMAND mkdir -p ${PYTHON_LIB_DIR} && cp -v ${PYLIB_OUTPUT_FILE} ${PYTHON_LIB_DIR}/${PYLIB_SO_NAME}
@@ -91,7 +91,6 @@ add_custom_command(TARGET numpyopencv
   COMMAND mkdir -p ${PYTHON_LIB_DIR} && cp -v ${NUMPYOPENCV_MODULE} ${PYTHON_LIB_DIR}/np_opencv_module.so
   WORKING_DIRECTORY ${CATKIN_DEVEL_PREFIX}
   COMMENT "Copying library files to python directory" )
-
 
 add_library(${PROJECT_NAME}_core
     src/register_python.cpp
